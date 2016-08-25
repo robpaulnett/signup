@@ -15,11 +15,103 @@
 # limitations under the License.
 #
 import webapp2
+import cgi
 
-class MainHandler(webapp2.RequestHandler):
+# html boilerplate for the top of every page
+page_header = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Signup</title>
+    <style type="text/css">
+        .error {color: red;}
+        form {width:200px;background-color:#999999;padding:7px;}
+        label {margin:25px 0px 0px 0px;}
+        div {float:left;}
+        .error {float:left;color:red;display:inline;}
+
+    </style>
+</head>
+<body>
+    <h3>
+        <a href="/">User Signup</a>
+    </h3>
+"""
+
+signup_form = """
+<form action="/signup" method="POST">
+    <label>Username:    <div>
+            <input type="text" name="username" value="%(username)s" />
+            <span class="error"> %(e_username)s</span>
+        </div>
+    </label><br />
+    <label>Password:    <div>
+            <input type="password" name="password" value="%(password)s" />
+            <span class="error"> %(e_password)s</span>
+        </div>
+    </label><br />
+    <label>Verify Password:    <div>
+            <input type="password" name="verify" value="%(verify)s" />
+            <span class="error"> %(e_verify)s</span>
+        </div>
+    </label><br />
+    <label>Email(optional):    <div>
+            <input type="text" name="email" value="%(email)s" />
+            <span class="error"> %(e_email)s</span>
+        </div>
+    </label><br />
+    <input type="submit" value="Submit Info" /><br />
+</form>
+"""
+
+
+# html boilerplate for the bottom of every page
+page_footer = """
+</body>
+</html>
+"""
+
+
+class Index(webapp2.RequestHandler):
+
+    def write_form(self, e_username="", e_password="", e_verify="", e_email="", username="", password="", verify="", email=""):
+        self.response.out.write(signup_form % {"e_username": e_username,
+                                                "e_password": e_password,
+                                                "e_verify": e_verify,
+                                                "e_email": e_email,
+                                                "username": username,
+                                                "password": password,
+                                                "verify": verify,
+                                                "email": email})
+
     def get(self):
-        self.response.write('Hello world!')
+        #PUT FORM ON SCREEN
+        #response = page_header + rotate_form_input + page_footer
+        self.write_form()
+        #self.response.write('You Must Signup To Use Our Site')
+
+    def post(self):
+        # look inside the request to figure out what the user typed
+        input_username = self.request.get('username')
+        input_password = self.request.get('password')
+        input_verify = self.request.get('verify')
+        input_email = self.request.get('email')
+
+        # validation procedures
+        error_username = "You must create a user name."
+        if input_username == '':
+            self.response.write(error_username)
+
+        error_pass_unmatch = "Your passwords do not match"
+        if input_password != input_verify:
+            self.response.write(error_pass_unmatch)
+
+        # combine all the pieces to build the content of our response
+        main_content = input_username + input_password + input_verify + input_email
+        response = page_header + main_content + page_footer
+        self.response.out.write(response)
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', Index),
+    ('/signup', Index)
 ], debug=True)
