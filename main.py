@@ -24,8 +24,9 @@ page_header = """
 <head>
     <title>User Signup</title>
     <style type="text/css">
+        body {float:left;background-color:tan;}
         .error {color: red;}
-        form {width:200px;background-color:#999999;padding:7px;}
+        .form {width:200px;background-color:#ccc;padding:7px;}
         label {margin:25px 0px 0px 0px;}
         div {float:left;}
         .error {float:left;color:red;display:inline;}
@@ -39,27 +40,31 @@ page_header = """
 """
 
 signup_form = """
-<form action="/signup" method="POST">
-    <label>Username:    <div>
+<form action="/signup" method="POST" class="form">
+    <div>
+        <label>Username:
             <input type="text" name="username" value="%(username)s" />
             <span class="error"> %(e_username)s</span>
-        </div>
-    </label><br />
-    <label>Password:    <div>
+        </label>
+    </div>
+    <div>
+        <label>Password:
             <input type="password" name="password" value="%(password)s" />
             <span class="error"> %(e_password)s</span>
-        </div>
-    </label><br />
-    <label>Verify Password:    <div>
+        </label>
+    </div>
+    <div>
+        <label>Verify Password:
             <input type="password" name="verify" value="%(verify)s" />
             <span class="error"> %(e_verify)s</span>
-        </div>
-    </label><br />
-    <label>Email(optional):    <div>
+        </label>
+    </div>
+    <div>
+        <label>Email(optional):
             <input type="text" name="email" value="%(email)s" />
             <span class="error"> %(e_email)s</span>
-        </div>
-    </label><br />
+        </label>
+    </div>
     <input type="submit" value="Submit Info" /><br />
 </form>
 """
@@ -67,7 +72,7 @@ signup_form = """
 
 # html boilerplate for the bottom of every page
 page_footer = """
-</body>
+</body>copyright 2016
 </html>
 """
 
@@ -75,14 +80,14 @@ page_footer = """
 class Index(webapp2.RequestHandler):
 
     def write_form(self, e_username="", e_password="", e_verify="", e_email="", username="", password="", verify="", email=""):
-        self.response.out.write(signup_form % {"e_username": e_username,
+        self.response.out.write(page_header + signup_form % {"e_username": e_username,
                                                 "e_password": e_password,
                                                 "e_verify": e_verify,
                                                 "e_email": e_email,
                                                 "username": username,
                                                 "password": password,
                                                 "verify": verify,
-                                                "email": email})
+                                                "email": email} + page_footer)
 
     def get(self):
         #PUT FORM ON SCREEN
@@ -90,6 +95,7 @@ class Index(webapp2.RequestHandler):
         self.write_form()
         #self.response.write('You Must Signup To Use Our Site')
 
+class Output(webapp2.RequestHandler):
     def post(self):
         # look inside the request to figure out what the user typed
         input_username = self.request.get('username')
@@ -98,13 +104,15 @@ class Index(webapp2.RequestHandler):
         input_email = self.request.get('email')
 
         # validation procedures
-        error_username = "You must create a user name."
+        e_username = "You must create a user name."
         if input_username == '':
-            self.response.write(error_username)
+            err_response = signup_form.format(e_username = e_username)
+            self.redirect("/?error=" + err_response)
+
 
         error_pass_unmatch = "Your passwords do not match"
         if input_password != input_verify:
-            self.response.write(error_pass_unmatch)
+            self.redirect("/?error=" + error_pass_unmatch)
 
         # combine all the pieces to build the content of our response
         main_content = input_username + input_password + input_verify + input_email
@@ -113,5 +121,5 @@ class Index(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', Index),
-    ('/signup', Index)
+    ('/signup', Output)
 ], debug=True)
