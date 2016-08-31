@@ -26,7 +26,7 @@ page_header = """
     <title>User Signup</title>
     <style type="text/css">
         body {background-color:tan;margin-left:150px;}
-        .form {width:600px;background-color:#ccc;padding:7px;}
+        .form {width:500px;background-color:#ccc;padding:7px;}
         div {}
         label {margin:25px 0px 0px 0px;}
         input {float;left;}
@@ -119,37 +119,41 @@ class Index(webapp2.RequestHandler):
         if input_username == '':
             e_username = "You must create a user name"
             self.write_form(e_username)
+        #else:
+        #    e_username = ""
 
         #   check RegEx for username
         elif not valid_username(input_username):
             e_username = "You must create a valid user name"
             self.write_form(e_username)
-
-        # my own simple check to see if anything was put in password #1
-        elif input_password == '':
-            e_password = "You must create a password"
-            self.write_form(e_password)
+        #else:
+        #    e_username = ""
 
         #   check RegEx for password
         elif not valid_password(input_password):
             e_password = "That's not a valid password"
             self.write_form(e_password)
-
-        # my own simple check to see if anything was put in password #2
-        elif input_verify == '':
-            e_verify = "You must create a matching password"
-            self.write_form(e_verify)
+        #else:
+        #    e_password = ""
 
         #   check RegEx for passwords verify matching
-        elif input_verify != input_password:
+        elif input_verify is input_password:
             e_verify = "Your passwords do not match"
             self.write_form(e_verify)
+            #else:
+            #    e_verify = ""
 
-        #   check RegEx for proper email
+            #   check RegEx for proper email
         elif not valid_email(input_email):
             e_email = "That's not a valid email, dude"
             self.write_form(e_email)
-        #   if no errors have been thrown, then send a big, warm welcome!
+        #else:
+        #    e_email = ""
+
+
+        # if all the IF statements pass verification, replace form with welcome and username
+        #if '':  #   if any errors have values write to the form
+                #   maybe this is an if/else with all the verifications inside it???
         else:
             success = "Welcome, " + input_username
             greeting = page_header + success + page_footer
